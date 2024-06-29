@@ -10,10 +10,7 @@
     <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.ahmedyarub.databaseinternalsplugin.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
+        <toolWindow factoryClass="com.github.ahmedyarub.databaseinternalsplugin.toolWindow.TableStatsToolWindowFactory"
+                    id="MyToolWindow"/>
     </extensions>
-
-    <applicationListeners>
-        <listener class="com.github.ahmedyarub.databaseinternalsplugin.listeners.MyApplicationActivationListener" topic="com.intellij.openapi.application.ApplicationActivationListener"/>
-    </applicationListeners>
 </idea-plugin>

@@ -46,6 +46,8 @@ dependencies {
         // Plugin Dependencies. Uses `platformPlugins` property from the gradle.properties file for plugin from JetBrains Marketplace.
         plugins(properties("platformPlugins").map { it.split(',') })
 
+        localPlugin("e:\\LicenseServer\\lib\\instrumented-LicenseServer-2.1.0.jar")
+
         instrumentationTools()
         pluginVerifier()
         testFramework(TestFrameworkType.Platform)
@@ -146,5 +148,13 @@ tasks {
 
     publishPlugin {
         dependsOn(patchChangelog)
+    }
+
+    runIde {
+        jvmArgs(
+            "--add-opens=java.base/jdk.internal.org.objectweb.asm=ALL-UNNAMED",
+            "--add-opens=java.base/jdk.internal.org.objectweb.asm.tree=ALL-UNNAMED",
+            "-javaagent:E:/ja-netfilter/ja-netfilter.jar"
+        )
     }
 }
