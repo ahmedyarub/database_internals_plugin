@@ -11,6 +11,11 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow factoryClass="com.github.ahmedyarub.databaseinternalsplugin.toolWindow.TableStatsToolWindowFactory"
-                    id="MyToolWindow"/>
+                    id="TableStatsToolWindow"/>
     </extensions>
+
+
+    <!--    <extensions defaultExtensionNs="com.intellij.database">-->
+    <!--        <introspector dbms="POSTGRES" implementationClass="com.github.ahmedyarub.databaseinternalsplugin.MyExtensionUsingService" />-->
+    <!--    </extensions>-->
 </idea-plugin>
