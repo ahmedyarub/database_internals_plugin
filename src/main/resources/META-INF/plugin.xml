@@ -12,10 +12,10 @@
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow factoryClass="com.github.ahmedyarub.databaseinternalsplugin.toolWindow.TableStatsToolWindowFactory"
                     id="TableStatsToolWindow"/>
+
     </extensions>
-
-
-    <!--    <extensions defaultExtensionNs="com.intellij.database">-->
-    <!--        <introspector dbms="POSTGRES" implementationClass="com.github.ahmedyarub.databaseinternalsplugin.MyExtensionUsingService" />-->
-    <!--    </extensions>-->
+    <extensions defaultExtensionNs="com.intellij.database">
+        <introspector dbms="POSTGRES"
+                      implementationClass="com.github.ahmedyarub.databaseinternalsplugin.PgIntrospectorFactoryWrapper"/>
+    </extensions>
 </idea-plugin>
