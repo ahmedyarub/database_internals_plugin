@@ -1,31 +1,27 @@
 package com.github.ahmedyarub.databaseinternalsplugin;
 
-import com.intellij.database.dataSource.DatabaseConnectionCore;
 import com.intellij.database.dataSource.LocalDataSource;
-import com.intellij.database.introspection.DBIntrospectionOptions;
-import com.intellij.database.introspection.DBIntrospector;
-import com.intellij.database.introspection.IntrospectionMetricKey;
-import com.intellij.database.introspection.IntrospectionTask;
-import com.intellij.database.model.ObjectKind;
-import com.intellij.database.model.basic.BasicDatabase;
-import com.intellij.database.model.basic.BasicElement;
+import com.intellij.database.dialects.base.introspector.BaseMultiDatabaseIntrospector;
+import com.intellij.database.dialects.base.introspector.BaseNativeIntrospector;
+import com.intellij.database.dialects.postgres.introspector.PgIntrospector;
+import com.intellij.database.dialects.postgres.model.PgDatabase;
+import com.intellij.database.dialects.postgres.model.PgModelHelper;
+import com.intellij.database.dialects.postgres.model.PgRoot;
+import com.intellij.database.dialects.postgres.model.PgSchema;
+import com.intellij.database.dialects.postgresgreenplumbase.introspector.PgGPlumBaseIntroQueries;
+import com.intellij.database.dialects.postgresgreenplumbase.introspector.PgGPlumBaseIntrospector;
+import com.intellij.database.dialects.postgresgreenplumbase.model.PgGPlumBaseModelHelper;
+import com.intellij.database.layoutedQueries.DBTransaction;
 import com.intellij.database.model.basic.BasicModModel;
-import com.intellij.database.model.basic.BasicNamespace;
 import com.intellij.database.util.TreePattern;
-import com.intellij.database.util.common.TimeAggEntry;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.util.PairConsumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+public class PgIntrospectorWrapper extends PgGPlumBaseIntrospector<PgRoot, PgDatabase, PgSchema> {
+    private final PgIntrospector introspector;
 
-public class PgIntrospectorWrapper implements DBIntrospector {
-    private final DBIntrospector introspector;
-
-    public PgIntrospectorWrapper(DBIntrospector introspector) {
+    public PgIntrospectorWrapper(PgIntrospector introspector) {
+        super();
         this.introspector = introspector;
     }
 
@@ -35,132 +31,27 @@ public class PgIntrospectorWrapper implements DBIntrospector {
     }
 
     @Override
-    public @NotNull BasicModModel getModel() {
-        return introspector.getModel();
+    protected @NotNull PgGPlumBaseModelHelper getHelper() {
+        return PgModelHelper.INSTANCE;
     }
 
     @Override
-    public @NotNull DBIntrospectionOptions getOptions() {
-        return introspector.getOptions();
+    protected @NotNull PgGPlumBaseIntroQueries getQueries() {
+        return PgIntrospector.QUERIES;
     }
 
     @Override
-    public void setOptions(@NotNull DBIntrospectionOptions dbIntrospectionOptions) {
-        introspector.setOptions(dbIntrospectionOptions);
+    public @NotNull String generateDbAge(@NotNull String s) {
+        return introspector.generateDbAge(s);
     }
 
     @Override
-    public @NotNull PairConsumer<String, Throwable> getErrorSink() {
-        return introspector.getErrorSink();
+    protected @NotNull BaseMultiDatabaseIntrospector<PgRoot, PgDatabase, PgSchema>.BaseDatabaseRetriever<? extends PgDatabase> createDatabaseRetriever(@NotNull DBTransaction dbTransaction, @NotNull PgDatabase pgDatabase) {
+        return new PgGPlumBaseIntrospector<PgRoot, PgDatabase, PgSchema>.PgGPlumBaseDatabaseRetriever<>(dbTransaction, pgDatabase);
     }
 
     @Override
-    public void setErrorSink(@NotNull PairConsumer<String, Throwable> pairConsumer) {
-        introspector.setErrorSink(pairConsumer);
-    }
-
-    @Override
-    public @Nullable ProgressIndicator getProgressIndicator() {
-        return introspector.getProgressIndicator();
-    }
-
-    @Override
-    public void setProgressIndicator(@Nullable ProgressIndicator progressIndicator) {
-        introspector.setProgressIndicator(progressIndicator);
-    }
-
-    @Override
-    public void attachToDB(@NotNull DatabaseConnectionCore databaseConnectionCore) {
-        introspector.attachToDB(databaseConnectionCore);
-    }
-
-    @Override
-    public void detachFromDB() {
-        introspector.detachFromDB();
-    }
-
-    @Override
-    public void introspect(@NotNull Collection<? extends IntrospectionTask> collection) {
-        introspector.introspect(collection);
-    }
-
-    @Override
-    public void introspect(@NotNull IntrospectionTask introspectionTask) {
-        introspector.introspect(introspectionTask);
-    }
-
-    @Override
-    public void introspectAuto(@NotNull BasicNamespace[] basicNamespaces) {
-        introspector.introspectAuto(basicNamespaces);
-    }
-
-    @Override
-    public void introspectServerObjects() {
-        introspector.introspectServerObjects();
-    }
-
-    @Override
-    public void introspectNamespaces() {
-        introspector.introspectNamespaces();
-    }
-
-    @Override
-    public void introspectDatabaseSchemas(@NotNull BasicDatabase... basicDatabases) {
-        introspector.introspectDatabaseSchemas(basicDatabases);
-    }
-
-    @Override
-    public void introspectSessionState() {
-        introspector.introspectSessionState();
-    }
-
-    @Override
-    public @NotNull Map<BasicElement, Boolean> checkElementsUptodate(@NotNull Iterable<? extends BasicElement> iterable) {
-        return introspector.checkElementsUptodate(iterable);
-    }
-
-    @Override
-    public void introspectFragment(@NotNull BasicNamespace basicNamespace, boolean b, @NotNull ObjectKind objectKind, @NotNull String... strings) {
-        introspector.introspectFragment(basicNamespace, b, objectKind, strings);
-    }
-
-    @Override
-    public @NotNull Map<BasicElement, String[]> introspectNativeDefinitions(@NotNull Iterable<? extends BasicElement> iterable, boolean b) {
-        return introspector.introspectNativeDefinitions(iterable, b);
-    }
-
-    @Override
-    public @NotNull List<IntrospectionTask> listDeferredTasks() {
-        return introspector.listDeferredTasks();
-    }
-
-    @Override
-    public void processDeferredTasks() {
-        introspector.processDeferredTasks();
-    }
-
-    @Override
-    public void performFinalDiagnostics() {
-        introspector.performFinalDiagnostics();
-    }
-
-    @Override
-    public @Nullable String getCurrentDatabase() {
-        return introspector.getCurrentDatabase();
-    }
-
-    @Override
-    public @NotNull TreePattern getDefaultScope() {
-        return introspector.getDefaultScope();
-    }
-
-    @Override
-    public @NotNull List<TimeAggEntry<IntrospectionMetricKey>> getMetrics() {
-        return introspector.getMetrics();
-    }
-
-    @Override
-    public @Nullable String collectDiagnosticInfo(@NotNull Iterable<? extends BasicElement> iterable) {
-        return introspector.collectDiagnosticInfo(iterable);
+    protected @NotNull BaseNativeIntrospector<PgRoot, PgDatabase, PgSchema>.AbstractSchemaRetriever<? extends PgSchema> createSchemaRetriever(@NotNull DBTransaction dbTransaction, @NotNull PgSchema pgSchema) {
+        return introspector.createSchemaRetriever(dbTransaction, pgSchema);
     }
 }

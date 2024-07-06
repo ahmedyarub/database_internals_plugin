@@ -16,6 +16,6 @@
     </extensions>
     <extensions defaultExtensionNs="com.intellij.database">
         <introspector dbms="POSTGRES"
-                      implementationClass="com.github.ahmedyarub.databaseinternalsplugin.PgIntrospectorFactoryWrapper"/>
+                      implementationClass="com.github.ahmedyarub.databaseinternalsplugin.PgIntrospectorFactoryWrapper" order="first"/>
     </extensions>
 </idea-plugin>
