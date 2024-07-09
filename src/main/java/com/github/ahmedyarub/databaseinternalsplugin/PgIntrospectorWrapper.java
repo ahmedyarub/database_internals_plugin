@@ -12,6 +12,7 @@ import com.intellij.database.dialects.postgresgreenplumbase.introspector.PgGPlum
 import com.intellij.database.dialects.postgresgreenplumbase.introspector.PgGPlumBaseIntrospector;
 import com.intellij.database.dialects.postgresgreenplumbase.model.PgGPlumBaseModelHelper;
 import com.intellij.database.layoutedQueries.DBTransaction;
+import com.intellij.database.model.ModelFactory;
 import com.intellij.database.model.basic.BasicModModel;
 import com.intellij.database.util.TreePattern;
 import org.jetbrains.annotations.NotNull;
@@ -20,13 +21,15 @@ import org.jetbrains.annotations.Nullable;
 public class PgIntrospectorWrapper extends PgGPlumBaseIntrospector<PgRoot, PgDatabase, PgSchema> {
     private final PgIntrospector introspector;
 
-    public PgIntrospectorWrapper(PgIntrospector introspector) {
-        super();
+    public PgIntrospectorWrapper(PgIntrospector introspector, @NotNull ModelFactory modelFactory) {
+        super(introspector.context, introspector.dbms, modelFactory);
         this.introspector = introspector;
     }
 
     @Override
     public @NotNull BasicModModel init(@Nullable BasicModModel basicModModel, @NotNull LocalDataSource localDataSource, @Nullable TreePattern treePattern) {
+        super.init(basicModModel, localDataSource, treePattern);
+
         return introspector.init(basicModModel, localDataSource, treePattern);
     }
 
@@ -45,13 +48,21 @@ public class PgIntrospectorWrapper extends PgGPlumBaseIntrospector<PgRoot, PgDat
         return introspector.generateDbAge(s);
     }
 
+    @lombok.SneakyThrows
     @Override
-    protected @NotNull BaseMultiDatabaseIntrospector<PgRoot, PgDatabase, PgSchema>.BaseDatabaseRetriever<? extends PgDatabase> createDatabaseRetriever(@NotNull DBTransaction dbTransaction, @NotNull PgDatabase pgDatabase) {
-        return new PgGPlumBaseIntrospector<PgRoot, PgDatabase, PgSchema>.PgGPlumBaseDatabaseRetriever<>(dbTransaction, pgDatabase);
+    protected BaseMultiDatabaseIntrospector<PgRoot, PgDatabase, PgSchema>.@NotNull BaseDatabaseRetriever<PgDatabase> createDatabaseRetriever(@NotNull DBTransaction dbTransaction, @NotNull PgDatabase pgDatabase) {
+        var createDatabaseRetriever = introspector.getClass().getDeclaredMethod("createDatabaseRetriever", DBTransaction.class, PgDatabase.class);
+        createDatabaseRetriever.setAccessible(true);
+
+        return (BaseMultiDatabaseIntrospector<PgRoot, PgDatabase, PgSchema>.BaseDatabaseRetriever<PgDatabase>) createDatabaseRetriever.invoke(introspector, dbTransaction, pgDatabase);
     }
 
+    @lombok.SneakyThrows
     @Override
     protected @NotNull BaseNativeIntrospector<PgRoot, PgDatabase, PgSchema>.AbstractSchemaRetriever<? extends PgSchema> createSchemaRetriever(@NotNull DBTransaction dbTransaction, @NotNull PgSchema pgSchema) {
-        return introspector.createSchemaRetriever(dbTransaction, pgSchema);
+        var createSchemaRetriever = introspector.getClass().getDeclaredMethod("createSchemaRetriever", DBTransaction.class, PgSchema.class);
+        createSchemaRetriever.setAccessible(true);
+
+        return (BaseNativeIntrospector<PgRoot, PgDatabase, PgSchema>.AbstractSchemaRetriever<? extends PgSchema>) createSchemaRetriever.invoke(introspector, dbTransaction, pgSchema);
     }
 }

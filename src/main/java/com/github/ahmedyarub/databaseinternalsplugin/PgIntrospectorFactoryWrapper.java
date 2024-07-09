@@ -11,6 +11,7 @@ import com.intellij.database.util.Version;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@SuppressWarnings("UnstableApiUsage")
 public final class PgIntrospectorFactoryWrapper implements DBIntrospector.Factory {
     private final PgIntrospector.Factory factory;
 
@@ -20,7 +21,7 @@ public final class PgIntrospectorFactoryWrapper implements DBIntrospector.Factor
 
     @Override
     public @NotNull DBIntrospector createIntrospector(@NotNull DBIntrospectionContext dbIntrospectionContext, @NotNull Dbms dbms, @NotNull ModelFactory modelFactory) {
-        return new PgIntrospectorWrapper((PgIntrospector) this.factory.createIntrospector(dbIntrospectionContext, dbms, modelFactory));
+        return new PgIntrospectorWrapper((PgIntrospector) this.factory.createIntrospector(dbIntrospectionContext, dbms, modelFactory), modelFactory);
     }
 
     @Override

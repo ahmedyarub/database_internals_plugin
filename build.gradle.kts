@@ -12,6 +12,8 @@ plugins {
     alias(libs.plugins.changelog) // Gradle Changelog Plugin
     alias(libs.plugins.qodana) // Gradle Qodana Plugin
     alias(libs.plugins.kover) // Gradle Kover Plugin
+    kotlin("plugin.lombok") version "2.0.0"
+    id("io.freefair.lombok") version "8.6"
 }
 
 group = properties("pluginGroup").get()
