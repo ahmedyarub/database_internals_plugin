@@ -37,7 +37,11 @@ repositories {
 // Dependencies are managed with Gradle version catalog - read more: https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog
 dependencies {
     // implementation(libs.exampleLibrary)
+    implementation("org.projectlombok:lombok:1.18.34") // Use the latest version
+    annotationProcessor("org.projectlombok:lombok:1.18.34")
 
+    implementation("org.aspectj:aspectjrt:1.9.22.1") // Use the latest version
+    implementation("org.aspectj:aspectjweaver:1.9.22.1")
     // IntelliJ Platform Gradle Plugin Dependencies Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-dependencies-extension.html
     intellijPlatform {
         create(properties("platformType"), properties("platformVersion"))
@@ -54,6 +58,49 @@ dependencies {
         pluginVerifier()
         testFramework(TestFrameworkType.Platform)
     }
+}
+
+tasks.withType<JavaCompile> {
+    options.compilerArgs.addAll(listOf(
+        "-processor", "lombok.launch.AnnotationProcessorHider\$AnnotationProcessor"
+    ))
+}
+
+tasks.withType<JavaCompile> {
+    doLast {
+        ant.withGroovyBuilder {
+            "taskdef"(
+                "resource" to "org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties",
+                "classpath" to configurations.getByName("aspectj").asPath
+            )
+            "iajc"(
+                "source" to sourceCompatibility.toString(),
+                "target" to targetCompatibility.toString(),
+                "destDir" to sourceSets["main"].output.classesDirs.asPath
+            ) {
+                "sourceRoots" {
+                    sourceSets["main"].java.srcDirs.forEach {
+                        "pathelement"("location" to it)
+                    }
+                }
+                "classpath" {
+                    "pathelement"("path" to configurations.compileClasspath.get().files.joinToString(":"))
+                    "pathelement"("path" to sourceSets["main"].output.classesDirs.asPath)
+                }
+                "aspectPath" {
+                    "pathelement"("path" to configurations.getByName("aspectj").asPath)
+                }
+            }
+        }
+    }
+}
+
+configurations {
+    create("aspectj")
+}
+
+dependencies {
+    add("aspectj", "org.aspectj:aspectjtools:1.9.22.1")
 }
 
 // Configure IntelliJ Platform Gradle Plugin - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-extension.html
