@@ -1,6 +1,5 @@
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.markdownToHTML
-import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 
 fun properties(key: String) = providers.gradleProperty(key)
 fun environment(key: String) = providers.environmentVariable(key)
@@ -40,8 +39,6 @@ dependencies {
     implementation("org.projectlombok:lombok:1.18.34") // Use the latest version
     annotationProcessor("org.projectlombok:lombok:1.18.34")
 
-    implementation("org.aspectj:aspectjrt:1.9.22.1") // Use the latest version
-    implementation("org.aspectj:aspectjweaver:1.9.22.1")
     // IntelliJ Platform Gradle Plugin Dependencies Extension - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-dependencies-extension.html
     intellijPlatform {
         create(properties("platformType"), properties("platformVersion"))
@@ -56,7 +53,6 @@ dependencies {
 
         instrumentationTools()
         pluginVerifier()
-        testFramework(TestFrameworkType.Platform)
     }
 }
 
@@ -64,43 +60,6 @@ tasks.withType<JavaCompile> {
     options.compilerArgs.addAll(listOf(
         "-processor", "lombok.launch.AnnotationProcessorHider\$AnnotationProcessor"
     ))
-}
-
-tasks.withType<JavaCompile> {
-    doLast {
-        ant.withGroovyBuilder {
-            "taskdef"(
-                "resource" to "org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties",
-                "classpath" to configurations.getByName("aspectj").asPath
-            )
-            "iajc"(
-                "source" to sourceCompatibility.toString(),
-                "target" to targetCompatibility.toString(),
-                "destDir" to sourceSets["main"].output.classesDirs.asPath
-            ) {
-                "sourceRoots" {
-                    sourceSets["main"].java.srcDirs.forEach {
-                        "pathelement"("location" to it)
-                    }
-                }
-                "classpath" {
-                    "pathelement"("path" to configurations.compileClasspath.get().files.joinToString(":"))
-                    "pathelement"("path" to sourceSets["main"].output.classesDirs.asPath)
-                }
-                "aspectPath" {
-                    "pathelement"("path" to configurations.getByName("aspectj").asPath)
-                }
-            }
-        }
-    }
-}
-
-configurations {
-    create("aspectj")
-}
-
-dependencies {
-    add("aspectj", "org.aspectj:aspectjtools:1.9.22.1")
 }
 
 // Configure IntelliJ Platform Gradle Plugin - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-extension.html
@@ -186,15 +145,6 @@ tasks {
         gradleVersion = properties("gradleVersion").get()
     }
 
-    // Configure UI tests plugin
-    // Read more: https://github.com/JetBrains/intellij-ui-test-robot
-    testIdeUi {
-        systemProperty("robot-server.port", "8082")
-        systemProperty("ide.mac.message.dialogs.as.sheets", "false")
-        systemProperty("jb.privacy.policy.text", "<!--999.999-->")
-        systemProperty("jb.consents.confirmation.enabled", "false")
-    }
-
     publishPlugin {
         dependsOn(patchChangelog)
     }
@@ -203,7 +153,7 @@ tasks {
         jvmArgs(
             "--add-opens=java.base/jdk.internal.org.objectweb.asm=ALL-UNNAMED",
             "--add-opens=java.base/jdk.internal.org.objectweb.asm.tree=ALL-UNNAMED",
-            "-javaagent:E:/ja-netfilter/ja-netfilter.jar"
+            "-javaagent:E:/ja-netfilter/ja-netfilter.jar",
         )
     }
 }

@@ -49,6 +49,7 @@ public class PgIntrospectorWrapper extends PgGPlumBaseIntrospector<PgRoot, PgDat
     }
 
     @lombok.SneakyThrows
+    @SuppressWarnings("unchecked")
     @Override
     protected BaseMultiDatabaseIntrospector<PgRoot, PgDatabase, PgSchema>.@NotNull BaseDatabaseRetriever<PgDatabase> createDatabaseRetriever(@NotNull DBTransaction dbTransaction, @NotNull PgDatabase pgDatabase) {
         var createDatabaseRetriever = introspector.getClass().getDeclaredMethod("createDatabaseRetriever", DBTransaction.class, PgDatabase.class);
@@ -58,6 +59,7 @@ public class PgIntrospectorWrapper extends PgGPlumBaseIntrospector<PgRoot, PgDat
     }
 
     @lombok.SneakyThrows
+    @SuppressWarnings("unchecked")
     @Override
     protected @NotNull BaseNativeIntrospector<PgRoot, PgDatabase, PgSchema>.AbstractSchemaRetriever<? extends PgSchema> createSchemaRetriever(@NotNull DBTransaction dbTransaction, @NotNull PgSchema pgSchema) {
         var createSchemaRetriever = introspector.getClass().getDeclaredMethod("createSchemaRetriever", DBTransaction.class, PgSchema.class);
