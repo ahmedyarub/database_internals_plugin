@@ -1,5 +1,6 @@
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.markdownToHTML
+import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 
 fun properties(key: String) = providers.gradleProperty(key)
 fun environment(key: String) = providers.environmentVariable(key)
@@ -35,7 +36,6 @@ repositories {
 
 // Dependencies are managed with Gradle version catalog - read more: https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog
 dependencies {
-    // implementation(libs.exampleLibrary)
     implementation("org.projectlombok:lombok:1.18.34") // Use the latest version
     annotationProcessor("org.projectlombok:lombok:1.18.34")
 
@@ -53,6 +53,8 @@ dependencies {
 
         instrumentationTools()
         pluginVerifier()
+        zipSigner()
+        testFramework(TestFrameworkType.Platform)
     }
 }
 

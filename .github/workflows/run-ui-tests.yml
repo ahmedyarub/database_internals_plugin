@@ -27,11 +27,11 @@ jobs:
           - os: windows-latest
             runIde: start gradlew.bat runIdeForUiTests
           - os: macos-latest
-            runIde: ./gradlew testIdeUi &
+            runIde: ./gradlew runIdeForUiTests &
 
     steps:
 
-      # Check out current repository
+      # Check out the current repository
       - name: Fetch Sources
         uses: actions/checkout@v4
 
