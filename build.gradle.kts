@@ -1,6 +1,5 @@
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.markdownToHTML
-import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 
 fun properties(key: String) = providers.gradleProperty(key)
 fun environment(key: String) = providers.environmentVariable(key)
@@ -10,9 +9,7 @@ plugins {
     alias(libs.plugins.kotlin) // Kotlin support
     alias(libs.plugins.intelliJPlatform) // IntelliJ Platform Gradle Plugin
     alias(libs.plugins.changelog) // Gradle Changelog Plugin
-    alias(libs.plugins.qodana) // Gradle Qodana Plugin
-    alias(libs.plugins.kover) // Gradle Kover Plugin
-    kotlin("plugin.lombok") version "2.0.0"
+    kotlin("plugin.lombok") version "2.0.20-Beta2"
     id("io.freefair.lombok") version "8.6"
 }
 
@@ -21,7 +18,7 @@ version = properties("pluginVersion").get()
 
 // Set the JVM language level used to build the project.
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 }
 
 // Configure project's dependencies
@@ -54,14 +51,15 @@ dependencies {
         instrumentationTools()
         pluginVerifier()
         zipSigner()
-        testFramework(TestFrameworkType.Platform)
     }
 }
 
 tasks.withType<JavaCompile> {
-    options.compilerArgs.addAll(listOf(
-        "-processor", "lombok.launch.AnnotationProcessorHider\$AnnotationProcessor"
-    ))
+    options.compilerArgs.addAll(
+        listOf(
+            "-processor", "lombok.launch.AnnotationProcessorHider\$AnnotationProcessor"
+        )
+    )
 }
 
 // Configure IntelliJ Platform Gradle Plugin - read more: https://plugins.jetbrains.com/docs/intellij/tools-intellij-platform-gradle-plugin-extension.html
@@ -131,16 +129,6 @@ changelog {
     repositoryUrl = properties("pluginRepositoryUrl")
 }
 
-// Configure Gradle Kover Plugin - read more: https://github.com/Kotlin/kotlinx-kover#configuration
-kover {
-    reports {
-        total {
-            xml {
-                onCheck = true
-            }
-        }
-    }
-}
 
 tasks {
     wrapper {

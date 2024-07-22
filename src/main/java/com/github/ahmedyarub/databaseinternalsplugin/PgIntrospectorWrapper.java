@@ -1,6 +1,8 @@
 package com.github.ahmedyarub.databaseinternalsplugin;
 
+import com.intellij.database.dataSource.DatabaseConnectionCore;
 import com.intellij.database.dataSource.LocalDataSource;
+import com.intellij.database.dialects.base.introspector.BaseIntrospector;
 import com.intellij.database.dialects.base.introspector.BaseMultiDatabaseIntrospector;
 import com.intellij.database.dialects.base.introspector.BaseNativeIntrospector;
 import com.intellij.database.dialects.postgres.introspector.PgIntrospector;
@@ -66,5 +68,16 @@ public class PgIntrospectorWrapper extends PgGPlumBaseIntrospector<PgRoot, PgDat
         createSchemaRetriever.setAccessible(true);
 
         return (BaseNativeIntrospector<PgRoot, PgDatabase, PgSchema>.AbstractSchemaRetriever<? extends PgSchema>) createSchemaRetriever.invoke(introspector, dbTransaction, pgSchema);
+    }
+
+    @lombok.SneakyThrows
+    @Override
+    public void attachToDB(@NotNull DatabaseConnectionCore connection){
+        super.attachToDB(connection);
+
+        var dbFacadeField = BaseIntrospector.class.getDeclaredField("dbFacade");
+        dbFacadeField.setAccessible(true);
+
+        dbFacadeField.set(introspector, dbFacadeField.get(this));
     }
 }
